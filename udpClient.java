@@ -3,7 +3,7 @@ import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
 
-class ftclient{
+class udpClient{
     public static void main(String args[]){
         try{
             SocketChannel sc = SocketChannel.open();

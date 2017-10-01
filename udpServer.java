@@ -6,12 +6,13 @@ import java.nio.file.Path.*;
 import java.nio.file.*;
 
 /*********************************
-* TCP File Transfer Project
+* UDP File Transfer Project
 *
 * @author Dustin Thurston
+* @author Ryan Walt
 *********************************/
 
-class ftserver{
+class udpServer{
 
     public static void main(String args[]){
         try{
