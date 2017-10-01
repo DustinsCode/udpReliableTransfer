@@ -143,16 +143,20 @@ class udpClient{
                 while (inBytes <= fileSize) {
                   if (lFrame - lastRec <= SWS){
                     while (numPackets < SWS){
+                      System.out.println("test");
                       sc.receive(fileBuff);
-                      lastRec = fileBuff.getInt(0);
+                      //lastRec = fileBuff.getInt(1021);
+                      byte[] tempBytes = fileBuff.array();
+                      lastRec = (int) tempBytes[0];
+                      System.out.println(lastRec);
                       lFrame++;
-                      inBytes += 1024;
+                      inBytes += 1023;
                       fileBuff.flip();
+                      fileBuff = ByteBuffer.wrap(tempBytes, 1, 1023);
                       fc.write(fileBuff);
                       fileBuff = ByteBuffer.allocate(1024);
 
-
-                      acks.putInt(lastRec);
+                      acks.putInt(0, lastRec);
                       sc.send(acks, server);
                     }
                   }
