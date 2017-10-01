@@ -45,12 +45,12 @@ class udpServer{
                     SocketAddress client = c.receive(buffer);
                     String fileName = new String(buffer.array());
                     fileName = fileName.trim();
-    
+
                         //exit, ls, and file request commands
                         if(fileName.equals("exit")){
                             System.out.println("Client disconnected");
                             return;
-    
+
                         //Tell client which files are available
                         }else if(fileName.equals("ls")){
                             File flocation = new File(udpServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -61,36 +61,36 @@ class udpServer{
                             }
                             buffer = ByteBuffer.wrap(fileList.getBytes());
                             c.send(buffer,client);
-    
+
                         }else if(fileName != null){
                             try{
                                 System.out.println("Client trying to recieve " + fileName);
-    
+
                                 try{
                                     Path filelocation = null;
                                     String l = null;
                                     try{
                                         filelocation = Paths.get(udpServer.class.getResource(fileName).toURI());
                                         File f = new File(filelocation.toString());
-    
+
                                         String incoming = "incoming";
                                         buffer = ByteBuffer.wrap(incoming.getBytes());
                                         c.send(buffer,client);
-    
+
                                         //wait until client sends ready to recieve message
                                         buffer = ByteBuffer.allocate(1024);
                                         c.receive(buffer);
                                         buffer.compact();
-    
+
                                         //sends length of file and then waits until client accepts it
                                         Long size = f.length();
                                         String fileSize = size.toString();
                                         buffer = ByteBuffer.wrap(fileSize.getBytes());
-    
+
                                         c.send(buffer,client);
                                         buffer = ByteBuffer.allocate(4096);
                                         c.receive(buffer);
-    
+
                                         byte[] fileBytes;
                                         FileInputStream fis = new FileInputStream(f);
                                         BufferedInputStream bis = new BufferedInputStream(fis);
@@ -104,13 +104,12 @@ class udpServer{
                                         ByteBuffer acks = ByteBuffer.allocate(1024);
                                         //TESTING STUFF END
                                         while(bytesRead != size){
-                                            int bytesToSend = 1024;
+                                            int bytesToSend = 1023;
                                             int numPackets = 0;
-                                            c.receive(acks);
-                                            lastAck = acks.getInt();
+
                                             if(lastSent - lastAck <= SWS){
                                                 while(numPackets < SWS){
-                                                    buffer.putInt(numPackets);
+
                                                     numPackets ++;
                                                     if(size - bytesRead >= bytesToSend){
                                                         bytesRead += bytesToSend;
@@ -118,22 +117,28 @@ class udpServer{
                                                         bytesToSend = (int)(size-bytesRead);
                                                         bytesRead = size;
                                                     }
-                                                    fileBytes = new byte[bytesToSend];
-                                                    bis.read(fileBytes, 0, bytesToSend);
+                                                    fileBytes = new byte[bytesToSend +  1];
+                                                    fileBytes[0] = (byte) lastSent;
+                                                    bis.read(fileBytes, 1, bytesToSend);
                                                     buffer = ByteBuffer.wrap(fileBytes);
+                                                    //buffer.putInt(1021, lastSent);
+                                                    System.out.println("About to send");
                                                     c.send(buffer,client);
-                                                    lastSent = numPackets;
+                                                    lastSent++;
                                                     System.out.println("Packet Sent");
                                                 }
                                             }
+                                            c.receive(acks);
+                                            lastAck = acks.getInt(0);
                                         }
                                     }catch(URISyntaxException u){
                                         System.out.println("Error converting file");
                                     }
                                     System.out.println("The file has been sent.");
+                                    fileName = null;
                                 }catch(IOException ioe){
                                     String error = "error";
-    
+
                                     //tells client an error occurred
                                     buffer = ByteBuffer.wrap(error.getBytes());
                                     c.send(buffer,client);
@@ -151,11 +156,10 @@ class udpServer{
                     return;
                 }
             }
-        
+
         }catch(IOException e){
             System.out.println("Got an IO exception. Closing program...");
             return;
         }
     }
 }
-
