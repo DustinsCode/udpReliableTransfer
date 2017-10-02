@@ -108,9 +108,7 @@ class udpServer{
                                             int numPackets = 0;
 
                                             while(lastSent - lastAck <= SWS){
-                                                //while(numPackets < SWS){
 
-                                                    //numPackets ++;
                                                     if(size - bytesRead >= bytesToSend){
                                                         bytesRead += bytesToSend;
                                                     }else{
@@ -129,13 +127,15 @@ class udpServer{
                                                     c.send(buffer,client);
                                                     lastSent++;
                                                     System.out.println("Packet Sent");
-
+                                                    if(bytesRead == size){
+                                                        break;
+                                                    }
 
                                                 //}
                                             }
-                                            System.out.println("Waiting ");
-                                            c.receive(acks);
-                                            if (acks.array() != null)
+                                            //System.out.println("Waiting ");
+                                            //c.receive(acks);
+                                            //if (acks.array() != null)
                                               lastAck++;
                                             // acks.flip();
                                             // byte[] ack = acks.array();

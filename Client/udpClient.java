@@ -125,32 +125,39 @@ class udpClient{
                 sc.send(buffer, server);
 
                 System.out.println("waiting for data..");
-
-                File f = new File(fileName.substring(1));
-                fileBuff = ByteBuffer.allocate(1024);
                 int inBytes = 0;
+                File f = new File(fileName.substring(1));
+                if((int)fileSize > 1024){
+                  fileBuff = ByteBuffer.allocate(1024);
+                }else{
+                  fileBuff = ByteBuffer.allocate((int)fileSize);
+                }
+                
                 FileChannel fc = new FileOutputStream(f, false).getChannel();
 
 
                 //buffer = new ByteBuffer();
                 int numPackets = 0;
                 int lastRec = 0;
-                int lFrame = 0;
+                int lFrame = 4;
                 ByteBuffer acks = ByteBuffer.allocate(1024);
 
 
 
-                while (inBytes <= fileSize) {
+                while (inBytes <= (int)fileSize) {
                   if (lFrame - lastRec <= SWS){
                     //numPackets = 0;
                     while (numPackets < SWS){
-                      if (inBytes > fileSize)
+                      if (inBytes >= (int)fileSize){
+                        numPackets = SWS;
                         break;
+                      }
                       System.out.println("Packet Received");
                       sc.receive(fileBuff);
 
                       byte[] tempBytes = fileBuff.array();
-                      lastRec = (int) tempBytes[0];
+                      lastRec++;
+                      //lastRec = (int) tempBytes[0];
                       System.out.println(lastRec);
                       lFrame++;
                       inBytes += tempBytes.length-1;
@@ -159,24 +166,23 @@ class udpClient{
 
 
                       fileBuff.flip();
-                      sizeBuf = ByteBuffer.wrap(tempBytes, 1, tempBytes.length-1);
+                      fileBuff = ByteBuffer.wrap(tempBytes, 1, tempBytes.length-1);
                       //fileBuff = fileBuff.compact();
-                      fc.write(sizeBuf);
-                      fileBuff = ByteBuffer.allocate(1024);
-
-                      byte[] ack = new byte[1];
-                      ack[0] = (byte)(tempBytes[0]);
+                      fc.write(fileBuff);
+                      fileBuff = ByteBuffer.allocate(tempBytes.length);
+                      
+                      //byte[] ack = new byte[1];
+                      //ack[0] = (byte)(tempBytes[0]);
                       //ack[1] = (byte)(tempBytes[0]);
-                      System.out.println("" + (int)ack[0]);
-                      acks = ByteBuffer.wrap(ack);
+                      //System.out.println("" + (int)ack[0]);
+                      //acks = ByteBuffer.wrap(ack);
                       //acks = acks.putInt(lastRec);
                       //System.out.println(acks.getInt());
-                      sc.send(acks, server);
-                      acks = ByteBuffer.allocate(1024);
+                      //sc.send(acks, server);
+                      //acks = ByteBuffer.allocate(1024);
                       }
                     }
                   }
-
                 fc.close();
                 System.out.println("Success!");
 
@@ -218,5 +224,4 @@ class udpClient{
       return false;
     }
   }
-
 }
