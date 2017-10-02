@@ -107,10 +107,10 @@ class udpServer{
                                             int bytesToSend = 1023;
                                             int numPackets = 0;
 
-                                            if(lastSent - lastAck <= SWS){
-                                                while(numPackets < SWS){
+                                            while(lastSent - lastAck <= SWS){
+                                                //while(numPackets < SWS){
 
-                                                    numPackets ++;
+                                                    //numPackets ++;
                                                     if(size - bytesRead >= bytesToSend){
                                                         bytesRead += bytesToSend;
                                                     }else{
@@ -126,12 +126,14 @@ class udpServer{
                                                     c.send(buffer,client);
                                                     lastSent++;
                                                     System.out.println("Packet Sent");
-                                                    c.receive(acks);
-                                                    lastAck = acks.getInt(0);
-                                                }
+
+                                                    
+                                                //}
                                             }
                                             c.receive(acks);
-                                            lastAck = acks.getInt(0);
+                                            byte[] ack = acks.array();
+                                            lastAck = (int)ack[0];
+                                            System.out.println("Last acknowledged: " + lastAck);
                                         }
                                     }catch(URISyntaxException u){
                                         System.out.println("Error converting file");

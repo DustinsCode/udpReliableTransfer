@@ -156,8 +156,14 @@ class udpClient{
                       fc.write(fileBuff);
                       fileBuff = ByteBuffer.allocate(1024);
 
-                      acks.putInt(0, lastRec);
+                      byte[] ack = new byte[1];
+                      ack[0] = tempBytes[0];
+                      System.out.println("" + (int)ack[0]);
+                      acks = ByteBuffer.wrap(ack);
+                      //acks = acks.putInt(lastRec);
+                      //System.out.println(acks.getInt());
                       sc.send(acks, server);
+                      acks = ByteBuffer.allocate(1024);
                     }
                   }
                 }
