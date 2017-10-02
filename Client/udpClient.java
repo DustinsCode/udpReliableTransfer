@@ -143,7 +143,7 @@ class udpClient{
                 while (inBytes <= fileSize) {
                   if (lFrame - lastRec <= SWS){
                     while (numPackets < SWS){
-                      System.out.println("test");
+                      System.out.println("Packet Received");
                       sc.receive(fileBuff);
                       //lastRec = fileBuff.getInt(1021);
                       byte[] tempBytes = fileBuff.array();

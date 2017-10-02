@@ -126,6 +126,8 @@ class udpServer{
                                                     c.send(buffer,client);
                                                     lastSent++;
                                                     System.out.println("Packet Sent");
+                                                    c.receive(acks);
+                                                    lastAck = acks.getInt(0);
                                                 }
                                             }
                                             c.receive(acks);
@@ -136,6 +138,7 @@ class udpServer{
                                     }
                                     System.out.println("The file has been sent.");
                                     fileName = null;
+                                    break;
                                 }catch(IOException ioe){
                                     String error = "error";
 
