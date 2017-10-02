@@ -98,7 +98,7 @@ class udpServer{
 
                                         //TESTING STUFF
 
-                                        int lastAck = -1;
+                                        int lastAck = 0;
                                         int lastSent = 0;
                                         buffer = ByteBuffer.allocate(1024);
                                         ByteBuffer acks = ByteBuffer.allocate(1024);
@@ -116,24 +116,31 @@ class udpServer{
                                                     }else{
                                                         bytesToSend = (int)(size-bytesRead);
                                                         bytesRead = size;
+                                                        buffer = ByteBuffer.allocate(bytesToSend);
                                                     }
+                                                    System.out.println(bytesToSend + "");
                                                     fileBytes = new byte[bytesToSend +  1];
                                                     fileBytes[0] = (byte) lastSent;
                                                     bis.read(fileBytes, 1, bytesToSend);
                                                     buffer = ByteBuffer.wrap(fileBytes);
                                                     //buffer.putInt(1021, lastSent);
                                                     System.out.println("About to send");
+                                                    //buffer = buffer.compact();
                                                     c.send(buffer,client);
                                                     lastSent++;
                                                     System.out.println("Packet Sent");
 
-                                                    
+
                                                 //}
                                             }
+                                            System.out.println("Waiting ");
                                             c.receive(acks);
-                                            byte[] ack = acks.array();
-                                            lastAck = (int)ack[0];
-                                            System.out.println("Last acknowledged: " + lastAck);
+                                            if (acks.array() != null)
+                                              lastAck++;
+                                            // acks.flip();
+                                            // byte[] ack = acks.array();
+                                            // lastAck = (int)ack[0];
+                                            // System.out.println("Last acknowledged: " + lastAck);
                                         }
                                     }catch(URISyntaxException u){
                                         System.out.println("Error converting file");

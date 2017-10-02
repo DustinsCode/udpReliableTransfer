@@ -134,7 +134,7 @@ class udpClient{
 
                 //buffer = new ByteBuffer();
                 int numPackets = 0;
-                int lastRec = -1;
+                int lastRec = 0;
                 int lFrame = 0;
                 ByteBuffer acks = ByteBuffer.allocate(1024);
 
@@ -142,31 +142,40 @@ class udpClient{
 
                 while (inBytes <= fileSize) {
                   if (lFrame - lastRec <= SWS){
+                    //numPackets = 0;
                     while (numPackets < SWS){
+                      if (inBytes > fileSize)
+                        break;
                       System.out.println("Packet Received");
                       sc.receive(fileBuff);
-                      //lastRec = fileBuff.getInt(1021);
+
                       byte[] tempBytes = fileBuff.array();
                       lastRec = (int) tempBytes[0];
                       System.out.println(lastRec);
                       lFrame++;
-                      inBytes += 1023;
+                      inBytes += tempBytes.length-1;
+
+                      ByteBuffer sizeBuf = ByteBuffer.allocate(tempBytes.length-1);
+
+
                       fileBuff.flip();
-                      fileBuff = ByteBuffer.wrap(tempBytes, 1, 1023);
-                      fc.write(fileBuff);
+                      sizeBuf = ByteBuffer.wrap(tempBytes, 1, tempBytes.length-1);
+                      //fileBuff = fileBuff.compact();
+                      fc.write(sizeBuf);
                       fileBuff = ByteBuffer.allocate(1024);
 
                       byte[] ack = new byte[1];
-                      ack[0] = tempBytes[0];
+                      ack[0] = (byte)(tempBytes[0]);
+                      //ack[1] = (byte)(tempBytes[0]);
                       System.out.println("" + (int)ack[0]);
                       acks = ByteBuffer.wrap(ack);
                       //acks = acks.putInt(lastRec);
                       //System.out.println(acks.getInt());
                       sc.send(acks, server);
                       acks = ByteBuffer.allocate(1024);
+                      }
                     }
                   }
-                }
 
                 fc.close();
                 System.out.println("Success!");
